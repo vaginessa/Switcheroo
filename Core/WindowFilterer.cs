@@ -21,6 +21,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Switcheroo.Core.Matchers;
+using System;
 
 namespace Switcheroo.Core
 {
@@ -31,7 +32,7 @@ namespace Switcheroo.Core
             var filterText = query;
             string processFilterText = null;
 
-            var queryParts = query.Split(new [] {'.'}, 2);
+            var queryParts = query.Split(new [] {'.'}, 2);  // . is used to seperate the input string in to two parts, part1--processFilterText, part2--filterText
 
             if (queryParts.Length == 2)
             {
@@ -40,9 +41,30 @@ namespace Switcheroo.Core
                 {
                     processFilterText = context.ForegroundWindowProcessTitle;
                 }
+                switch (processFilterText)
+                {
+                    // set some prefined-text to enable quick filtering
+                    case "e":
+                        processFilterText="excel";
+                        break;
+                    case "f":
+                        processFilterText = "explorer";
+                        break;
+                    case "w":
+                        processFilterText = "word";
+                        break;
+                    case "p":
+                        processFilterText = "powerpnt";
+                        break;
 
+                        // default:
+                        //  processFilterText= processFilterText;
+                        // break;
+                }
                 filterText = queryParts[1];
             }
+
+
 
             return context.Windows
                 .Select(
@@ -70,6 +92,7 @@ namespace Switcheroo.Core
                             WindowTitleMatchResults = r.ResultsTitle,
                             ProcessTitleMatchResults = r.ResultsProcessTitle
                         });
+            
         }
 
         private static List<MatchResult> Score(string title, string filterText)
@@ -86,7 +109,7 @@ namespace Switcheroo.Core
                 containsMatcher.Evaluate(title, filterText),
                 individualCharactersMatcher.Evaluate(title, filterText)
             };
-
+             
             return results;
         }
     }
