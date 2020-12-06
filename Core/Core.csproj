@@ -72,13 +72,6 @@
       <Name>ManagedWinapi</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Lib\tcmatch.ini" />
-    <None Include="Lib\tcmatch.tbl" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Lib\tcmatch64.dll" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
