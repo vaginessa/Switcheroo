@@ -39,6 +39,29 @@ Switcheroo was originally developed by [James Sulak](https://github.com/jsulak).
 
 [Regin Larsen](https://github.com/kvakulo) took over the project in 2014 and is the current maintainer.
 
+In **V1**, search by Chinese PinYin first letter is supported.
+Add some prefined abbreviation for widely used software:
+```
+e. xx is to search Excel with the title of xx
+w. xx is to search Word with the title of xx
+p. xx is to search Powerpnt with the title of xx
+f. xx is to search Explorer with the title of xx
+```
+the above mentioned abbreviation  is predefined in the program
+
+In **V1.1** these abbreviation  is predefined  using ini file, so that it would be more easy for user to define their own abbreviation  for process
+
+## ini file
+```
+[config]
+Spliter=.
+e=excel
+f=explorer
+w=word
+p=powerpnt
+```
+left part of the equation mark is the abbreviation for the process name
+right part of the equation mark is the process name
 
 How to contribute
 -----------------
