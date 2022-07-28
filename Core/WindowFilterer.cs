@@ -21,6 +21,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Switcheroo.Core.Matchers;
+using IniParser;
+using IniParser.Model;
 using System;
 
 namespace Switcheroo.Core
@@ -31,9 +33,13 @@ namespace Switcheroo.Core
         {
             var filterText = query;
             string processFilterText = null;
-
-            var queryParts = query.Split(new [] {'.'}, 2);  // . is used to seperate the input string in to two parts, part1--processFilterText, part2--filterText
-
+            var parser = new FileIniDataParser();
+            IniData data = parser.ReadFile("Switcheroo.ini");
+            string strSpliter = data["config"]["Spliter"];
+            // . is used to seperate the input string in to two parts, part1--processFilterText, part2--filterText
+            char charSpliter = strSpliter.ToCharArray()[0];            
+            var queryParts = query.Split(new[] { charSpliter }, 2);
+           
             if (queryParts.Length == 2)
             {
                 processFilterText = queryParts[0];
@@ -41,30 +47,11 @@ namespace Switcheroo.Core
                 {
                     processFilterText = context.ForegroundWindowProcessTitle;
                 }
-                switch (processFilterText)
-                {
-                    // set some prefined-text to enable quick filtering
-                    case "e":
-                        processFilterText="excel";
-                        break;
-                    case "f":
-                        processFilterText = "explorer";
-                        break;
-                    case "w":
-                        processFilterText = "word";
-                        break;
-                    case "p":
-                        processFilterText = "powerpnt";
-                        break;
-
-                        // default:
-                        //  processFilterText= processFilterText;
-                        // break;
-                }
+                processFilterText = data["config"][queryParts[0]];
                 filterText = queryParts[1];
             }
 
-
+            
 
             return context.Windows
                 .Select(

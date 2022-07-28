@@ -351,6 +351,15 @@ namespace Switcheroo
 
             HideWindow();
         }
+        private void Preview()
+        {
+            this.Topmost = true;
+            foreach (var item in lb.SelectedItems)
+            {
+                var win = (AppWindowViewModel)item;
+                win.AppWindow.SwitchToLastVisibleActivePopup();
+            }
+        }
 
         private void HideWindow()
         {
@@ -657,6 +666,7 @@ namespace Switcheroo
                 }
 
                 ScrollSelectedItemIntoView();
+                Preview();
             }
         }
 
