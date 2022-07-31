@@ -39,19 +39,28 @@ Switcheroo was originally developed by [James Sulak](https://github.com/jsulak).
 
 [Regin Larsen](https://github.com/kvakulo) took over the project in 2014 and is the current maintainer.
 
-In **V1**, search by Chinese PinYin first letter is supported.
-Add some prefined abbreviation for widely used software:
-```
-e. xx is to search Excel with the title of xx
-w. xx is to search Word with the title of xx
-p. xx is to search Powerpnt with the title of xx
-f. xx is to search Explorer with the title of xx
-```
-the above mentioned abbreviation  is predefined in the program
+## V1.2
+New feature/新功能
 
-In **V1.1** these abbreviation  is predefined  using ini file, so that it would be more easy for user to define their own abbreviation  for process
+**Add a Hotkey to switch witching same process's different windows**  
+ For example： After sitting Ctrl+Tab as the [HotKey for switching same process's different windows], when the user opened mutlitple MSWord windows, and one of them is activated, press Ctrl+Tab , one can switch to another window among those MSWord windows.
 
-## ini file
+增加一组快捷键，用于切换当前程序的各个窗口
+例如：设置Ctrl+tab为【当前程序切换快捷键】后，在打开若干个word文档，且当前某个wordk文档处于激活状态时，按下Ctrl+Tab就可以在word文档中切换
+
+[HotKey for switching same process's different windows]
+* When the process has only one window, nothing will happen when press the HotKey .
+* When the process has only two windows, directly switch to the other one when press the HotKey .
+
+[当前程序切换快捷键】
+当前程序只有一个窗口时，按下快捷键不会做出任何反应。
+当前程序有两个窗口时，按下快捷键会直接切换到另外一个窗口。
+![image](https://user-images.githubusercontent.com/3627812/182014517-389c3a00-da0c-4dbc-9fd6-7d90f65a2797.png)
+
+## V1.1
+these abbreviation  is predefined  using ini file, so that it would be more easy for user to define their own abbreviation  for process
+
+### ini file
 ```
 [config]
 Spliter=.
@@ -62,6 +71,18 @@ p=powerpnt
 ```
 left part of the equation mark is the abbreviation for the process name
 right part of the equation mark is the process name
+
+## V1
+In **V1**, search by Chinese PinYin first letter is supported.
+Add some prefined abbreviation for widely used software:
+```
+e. xx is to search Excel with the title of xx
+w. xx is to search Word with the title of xx
+p. xx is to search Powerpnt with the title of xx
+f. xx is to search Explorer with the title of xx
+```
+the above mentioned abbreviation  is predefined in the program
+
 
 How to contribute
 -----------------
