@@ -47,6 +47,7 @@ namespace ManagedWinapi
         private bool isDisposed = false, isEnabled = false, isRegistered = false;
         private Keys _keyCode;
         private bool _ctrl, _alt, _shift, _windows;
+        private string _name;
         private readonly IntPtr hWnd;
 
         /// <summary>
@@ -129,7 +130,16 @@ namespace ManagedWinapi
             get { return _shift; }
             set {_shift = value; updateHotkey(true);}
         }
-        
+
+        /// <summary>
+        /// Whether this shortcut includes the shift modifier.
+        /// </summary>
+        public string strName
+        {
+            get { return _name; }
+            set { _name = value; updateHotkey(true); }
+        }
+
         /// <summary>
         /// Whether this shortcut includes the Windows key modifier. The windows key
         /// is an addition by Microsoft to the keyboard layout. It is located between

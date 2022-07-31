@@ -24,20 +24,43 @@ namespace Switcheroo
     {
         public void LoadSettings()
         {
-            KeyCode = (System.Windows.Forms.Keys) Properties.Settings.Default.HotKey;
+            KeyCode = (System.Windows.Forms.Keys) Properties.Settings.Default.HotKey;            
             WindowsKey = Properties.Settings.Default.WindowsKey;
             Alt = Properties.Settings.Default.Alt;
             Ctrl = Properties.Settings.Default.Ctrl;
             Shift = Properties.Settings.Default.Shift;
+            strName= Properties.Settings.Default.HotKeyName;
+
+        }
+        public void curLoadSettings()
+        {
+            KeyCode = (System.Windows.Forms.Keys)Properties.Settings.Default.CurHotKey;
+            WindowsKey = Properties.Settings.Default.CurWindowsKey;
+            Alt = Properties.Settings.Default.CurAlt;
+            Ctrl = Properties.Settings.Default.CurCtrl;
+            Shift = Properties.Settings.Default.CurShift;
+            strName = Properties.Settings.Default.CurHotKeyName;
         }
 
-        public void SaveSettings()
+        public void SaveSettings(HotKey _userDefined)
         {
-            Properties.Settings.Default.HotKey = (int) KeyCode;
-            Properties.Settings.Default.WindowsKey = WindowsKey;
-            Properties.Settings.Default.Alt = Alt;
-            Properties.Settings.Default.Ctrl = Ctrl;
-            Properties.Settings.Default.Shift = Shift;
+            
+            Properties.Settings.Default.HotKey = (int)_userDefined.KeyCode;
+            Properties.Settings.Default.WindowsKey = _userDefined.WindowsKey;
+            Properties.Settings.Default.Alt = _userDefined.Alt;
+            Properties.Settings.Default.Ctrl = _userDefined.Ctrl;
+            Properties.Settings.Default.Shift = _userDefined.Shift;
+            Properties.Settings.Default.Save();
+        }
+
+        public void curSaveSettings(HotKey _userDefined)
+        {
+            Properties.Settings.Default.CurHotKey = (int)_userDefined.KeyCode;
+            Properties.Settings.Default.CurWindowsKey = _userDefined.WindowsKey;
+            Properties.Settings.Default.CurAlt = _userDefined.Alt;
+            Properties.Settings.Default.CurCtrl = _userDefined.Ctrl;
+            Properties.Settings.Default.CurShift = _userDefined.Shift;
+
             Properties.Settings.Default.Save();
         }
     }

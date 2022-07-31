@@ -121,6 +121,90 @@ namespace Switcheroo.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool EnableHotKey {
+            get {
+                return ((bool)(this["EnableHotKey"]));
+            }
+            set {
+                this["EnableHotKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CurCtrl {
+            get {
+                return ((bool)(this["CurCtrl"]));
+            }
+            set {
+                this["CurCtrl"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CurShift {
+            get {
+                return ((bool)(this["CurShift"]));
+            }
+            set {
+                this["CurShift"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CurWindowsKey {
+            get {
+                return ((bool)(this["CurWindowsKey"]));
+            }
+            set {
+                this["CurWindowsKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("88")]
+        public int CurHotKey {
+            get {
+                return ((int)(this["CurHotKey"]));
+            }
+            set {
+                this["CurHotKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CurAlt {
+            get {
+                return ((bool)(this["CurAlt"]));
+            }
+            set {
+                this["CurAlt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CurEnableHotKey {
+            get {
+                return ((bool)(this["CurEnableHotKey"]));
+            }
+            set {
+                this["CurEnableHotKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool AutoSwitch {
             get {
@@ -133,13 +217,25 @@ namespace Switcheroo.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool EnableHotKey {
+        [global::System.Configuration.DefaultSettingValueAttribute("GblHotKey")]
+        public string HotKeyName {
             get {
-                return ((bool)(this["EnableHotKey"]));
+                return ((string)(this["HotKeyName"]));
             }
             set {
-                this["EnableHotKey"] = value;
+                this["HotKeyName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("CurHotKey")]
+        public string CurHotKeyName {
+            get {
+                return ((string)(this["CurHotKeyName"]));
+            }
+            set {
+                this["CurHotKeyName"] = value;
             }
         }
     }

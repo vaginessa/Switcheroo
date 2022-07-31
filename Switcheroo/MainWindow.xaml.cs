@@ -38,6 +38,8 @@ using ManagedWinapi.Windows;
 using Switcheroo.Core;
 using Switcheroo.Core.Matchers;
 using Switcheroo.Properties;
+using System.Runtime.InteropServices;
+using System.Text;
 using Application = System.Windows.Application;
 using MenuItem = System.Windows.Forms.MenuItem;
 using MessageBox = System.Windows.MessageBox;
@@ -50,7 +52,7 @@ namespace Switcheroo
         private List<AppWindowViewModel> _unfilteredWindowList;
         private ObservableCollection<AppWindowViewModel> _filteredWindowList;
         private NotifyIcon _notifyIcon;
-        private HotKey _hotkey;
+        private HotKey _hotkey, _curHotkey;
 
         public static readonly RoutedUICommand CloseWindowCommand = new RoutedUICommand();
         public static readonly RoutedUICommand SwitchToWindowCommand = new RoutedUICommand();
@@ -71,6 +73,7 @@ namespace Switcheroo
             SetUpNotifyIcon();
 
             SetUpHotKey();
+            SetUpCurHotKey();
 
             SetUpAltTabHook();
 
@@ -144,6 +147,27 @@ namespace Switcheroo
             try
             {
                 _hotkey.Enabled = Settings.Default.EnableHotKey;
+            }
+            catch (HotkeyAlreadyInUseException)
+            {
+                var boxText = "The current hotkey for activating Switcheroo is in use by another program." +
+                              Environment.NewLine +
+                              Environment.NewLine +
+                              "You can change the hotkey by right-clicking the Switcheroo icon in the system tray and choosing 'Options'.";
+                MessageBox.Show(boxText, "Hotkey already in use", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+        private void SetUpCurHotKey()
+        {
+            _curHotkey = new HotKey();
+            _curHotkey.curLoadSettings();
+
+            Application.Current.Properties["curHotkey"] = _curHotkey;
+
+            _curHotkey.HotkeyPressed += hotkey_HotkeyPressed;
+            try
+            {
+                _curHotkey.Enabled = Settings.Default.EnableHotKey;
             }
             catch (HotkeyAlreadyInUseException)
             {
@@ -298,6 +322,55 @@ namespace Switcheroo
             ScrollSelectedItemIntoView();
         }
 
+
+        private ObservableCollection<AppWindowViewModel> LoadCurData(InitialFocus focus, string AWinPrcsName)
+        {
+
+            _unfilteredWindowList = new WindowFinder().GetWindows().Select(window => new AppWindowViewModel(window)).ToList();
+
+
+            var firstWindow = _unfilteredWindowList.FirstOrDefault();
+
+            var foregroundWindowMovedToBottom = false;
+
+            // Move first window to the bottom of the list if it's related to the foreground window
+            if (firstWindow != null && AreWindowsRelated(firstWindow.AppWindow, _foregroundWindow))
+            {
+                _unfilteredWindowList.RemoveAt(0);
+                _unfilteredWindowList.Add(firstWindow);
+                foregroundWindowMovedToBottom = true;
+            }
+                       
+
+            foreach (var window in _unfilteredWindowList.ToList())
+            {
+                if (window.ProcessTitle != AWinPrcsName)
+                { 
+                    _unfilteredWindowList.Remove(window);
+                    continue;
+                }
+                window.FormattedTitle = new XamlHighlighter().Highlight(new[] { new StringPart(window.AppWindow.Title) });
+                window.FormattedProcessTitle =
+                    new XamlHighlighter().Highlight(new[] { new StringPart(window.AppWindow.ProcessTitle) });
+            }
+            _filteredWindowList = new ObservableCollection<AppWindowViewModel>(_unfilteredWindowList);
+            _windowCloser = new WindowCloser();
+
+            lb.DataContext = null;
+            lb.DataContext = _filteredWindowList;
+            int WinNum = _filteredWindowList.Count;
+            if (WinNum > 1)
+            {
+                FocusItemInList(focus, foregroundWindowMovedToBottom);
+
+                tb.Clear();
+                tb.Focus();
+                CenterWindow();
+                ScrollSelectedItemIntoView();
+            }
+            return _filteredWindowList;
+        }
+
         private static bool AreWindowsRelated(SystemWindow window1, SystemWindow window2)
         {
             return window1.HWnd == window2.HWnd || window1.Process.Id == window2.Process.Id;
@@ -351,6 +424,7 @@ namespace Switcheroo
 
             HideWindow();
         }
+
         private void Preview()
         {
             this.Topmost = true;
@@ -429,6 +503,7 @@ namespace Switcheroo
             _notifyIcon.Dispose();
             _notifyIcon = null;
             _hotkey.Dispose();
+            _curHotkey.Dispose();
             Application.Current.Shutdown();
         }
 
@@ -447,20 +522,56 @@ namespace Switcheroo
 
         private void hotkey_HotkeyPressed(object sender, EventArgs e)
         {
-            if (!Settings.Default.EnableHotKey)
+            if (!Settings.Default.EnableHotKey && !Settings.Default.CurEnableHotKey)
             {
                 return;
             }
+            string shortcutName = (sender as Switcheroo.HotKey).strName;
 
             if (Visibility != Visibility.Visible)
             {
                 tb.IsEnabled = true;
 
                 _foregroundWindow = SystemWindow.ForegroundWindow;
+                string _aWinPrcsName = _foregroundWindow.Process.ProcessName;
+                var _aWinHWnd = _foregroundWindow.HWnd;
+                if (shortcutName == "CurHotKey")
+                {
+                    if (!Settings.Default.CurEnableHotKey)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        ObservableCollection<AppWindowViewModel> WindowList = LoadCurData(InitialFocus.NextItem, _aWinPrcsName);
+                        if (WindowList.Count == 1) return;
+                        if (WindowList.Count == 2)
+                        {
+                            // directly switched to the other window
+                            var win = WindowList[0];
+                            if (WindowList[0].HWnd == _aWinHWnd)
+                            {
+                                win = WindowList[1];
+                            }
+                            win.AppWindow.SwitchToLastVisibleActivePopup();
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    if (!Settings.Default.CurEnableHotKey)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        LoadData(InitialFocus.NextItem);
+                    }
+                }
                 Show();
                 Activate();
                 Keyboard.Focus(tb);
-                LoadData(InitialFocus.NextItem);
                 Opacity = 1;
             }
             else
@@ -667,6 +778,7 @@ namespace Switcheroo
 
                 ScrollSelectedItemIntoView();
                 Preview();
+                //SwitchPreview();
             }
         }
 

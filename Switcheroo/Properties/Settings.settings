@@ -26,11 +26,35 @@
     <Setting Name="RunAsAdmin" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="EnableHotKey" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="CurCtrl" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="CurShift" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="CurWindowsKey" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="CurHotKey" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">88</Value>
+    </Setting>
+    <Setting Name="CurAlt" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="CurEnableHotKey" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
     <Setting Name="AutoSwitch" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="EnableHotKey" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+    <Setting Name="HotKeyName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">GblHotKey</Value>
+    </Setting>
+    <Setting Name="CurHotKeyName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">CurHotKey</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -33,8 +33,8 @@ namespace Switcheroo
 {
     public partial class OptionsWindow : Window
     {
-        private readonly HotKey _hotkey;
-        private HotkeyViewModel _hotkeyViewModel;
+        private readonly HotKey _hotkey, _curHotkey;
+        private HotkeyViewModel _hotkeyViewModel, _curHotkeyViewModel;
 
         public OptionsWindow()
         {
@@ -42,10 +42,18 @@ namespace Switcheroo
 
             // Show what's already selected     
             _hotkey = (HotKey) Application.Current.Properties["hotkey"];
+            _curHotkey = (HotKey)Application.Current.Properties["curHotkey"];
 
             try
             {
-                _hotkey.LoadSettings();
+                _hotkey.LoadSettings();             
+            }
+            catch (HotkeyAlreadyInUseException)
+            {
+            }
+            try
+            {                
+                _curHotkey.curLoadSettings();
             }
             catch (HotkeyAlreadyInUseException)
             {
@@ -59,10 +67,24 @@ namespace Switcheroo
                 Windows = _hotkey.WindowsKey,
                 Shift = _hotkey.Shift
             };
+            _curHotkeyViewModel = new HotkeyViewModel
+            {
+                KeyCode = KeyInterop.KeyFromVirtualKey((int)_curHotkey.KeyCode),
+                Alt = _curHotkey.Alt,
+                Ctrl = _curHotkey.Ctrl,
+                Windows = _curHotkey.WindowsKey,
+                Shift = _curHotkey.Shift
+            };
+
+            CurHotKeyCheckBox.IsChecked = Settings.Default.CurEnableHotKey;
+            CurHotkeyPreview.Text = _curHotkeyViewModel.ToString();
+            CurHotkeyPreview.IsEnabled = Settings.Default.CurEnableHotKey;
 
             HotKeyCheckBox.IsChecked = Settings.Default.EnableHotKey;
             HotkeyPreview.Text = _hotkeyViewModel.ToString();
             HotkeyPreview.IsEnabled = Settings.Default.EnableHotKey;
+
+
             AltTabCheckBox.IsChecked = Settings.Default.AltTabHook;
             AutoSwitch.IsChecked = Settings.Default.AutoSwitch;
             AutoSwitch.IsEnabled = Settings.Default.AltTabHook;
@@ -91,9 +113,33 @@ namespace Switcheroo
                     _hotkey.WindowsKey = _hotkeyViewModel.Windows;
                     _hotkey.KeyCode = (Keys) KeyInterop.VirtualKeyFromKey(_hotkeyViewModel.KeyCode);
                     _hotkey.Enabled = true;
-                }
 
-                _hotkey.SaveSettings();
+                    Properties.Settings.Default.HotKey = (int)(Keys)KeyInterop.VirtualKeyFromKey(_hotkeyViewModel.KeyCode);
+                    Properties.Settings.Default.WindowsKey = _hotkeyViewModel.Windows;
+                    Properties.Settings.Default.Alt = _hotkeyViewModel.Alt;
+                    Properties.Settings.Default.Ctrl = _hotkeyViewModel.Ctrl;
+                    Properties.Settings.Default.Shift = _hotkeyViewModel.Shift;
+                    
+                }
+                if (Settings.Default.CurEnableHotKey)
+                {
+                    // Change the active hotkey
+                    _curHotkey.Alt = _curHotkeyViewModel.Alt;
+                    _curHotkey.Shift = _curHotkeyViewModel.Shift;
+                    _curHotkey.Ctrl = _curHotkeyViewModel.Ctrl;
+                    _curHotkey.WindowsKey = _curHotkeyViewModel.Windows;
+                    _curHotkey.KeyCode = (Keys)KeyInterop.VirtualKeyFromKey(_curHotkeyViewModel.KeyCode);
+                    _curHotkey.Enabled = true;
+
+                    Properties.Settings.Default.CurHotKey = (int)(Keys)KeyInterop.VirtualKeyFromKey(_curHotkeyViewModel.KeyCode);
+                    Properties.Settings.Default.CurWindowsKey = _curHotkeyViewModel.Windows;
+                    Properties.Settings.Default.CurAlt = _curHotkeyViewModel.Alt;
+                    Properties.Settings.Default.CurCtrl = _curHotkeyViewModel.Ctrl;
+                    Properties.Settings.Default.CurShift = _curHotkeyViewModel.Shift;
+                }
+                Properties.Settings.Default.Save();
+                //_hotkey.SaveSettings(_hotkey);
+                //_curHotkey.curSaveSettings(_curHotkey);
             }
             catch (HotkeyAlreadyInUseException)
             {
@@ -104,6 +150,7 @@ namespace Switcheroo
             }
 
             Settings.Default.EnableHotKey = HotKeyCheckBox.IsChecked.GetValueOrDefault();
+            Settings.Default.CurEnableHotKey = CurHotKeyCheckBox.IsChecked.GetValueOrDefault();
             Settings.Default.AltTabHook = AltTabCheckBox.IsChecked.GetValueOrDefault();
             Settings.Default.AutoSwitch = AutoSwitch.IsChecked.GetValueOrDefault();
             Settings.Default.RunAsAdmin = RunAsAdministrator.IsChecked.GetValueOrDefault();
@@ -154,7 +201,45 @@ namespace Switcheroo
             HotkeyPreview.Text = previewText;
             _hotkeyViewModel = previewHotkeyModel;
         }
+        private void CurHotkeyPreview_OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            // The text box grabs all input
+            e.Handled = true;
 
+            // Fetch the actual shortcut key
+            var key = (e.Key == Key.System ? e.SystemKey : e.Key);
+
+            // Ignore modifier keys
+            if (key == Key.LeftShift || key == Key.RightShift
+                || key == Key.LeftCtrl || key == Key.RightCtrl
+                || key == Key.LeftAlt || key == Key.RightAlt
+                || key == Key.LWin || key == Key.RWin)
+            {
+                return;
+            }
+
+            var previewHotkeyModel = new HotkeyViewModel();
+            previewHotkeyModel.Ctrl = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
+            previewHotkeyModel.Shift = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
+            previewHotkeyModel.Alt = (Keyboard.Modifiers & ModifierKeys.Alt) != 0;
+
+            var winLKey = new KeyboardKey(Keys.LWin);
+            var winRKey = new KeyboardKey(Keys.RWin);
+            previewHotkeyModel.Windows = (winLKey.State & 0x8000) == 0x8000 || (winRKey.State & 0x8000) == 0x8000;
+            previewHotkeyModel.KeyCode = key;
+
+            var previewText = previewHotkeyModel.ToString();
+
+            // Jump to the next element if the user presses only the Tab key
+            if (previewText == "Tab")
+            {
+                ((UIElement)sender).MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                return;
+            }
+
+            CurHotkeyPreview.Text = previewText;
+            _curHotkeyViewModel = previewHotkeyModel;
+        }
         private class HotkeyViewModel
         {
             public Key KeyCode { get; set; }
@@ -210,8 +295,24 @@ namespace Switcheroo
             // Disable the current hotkey while the hotkey field is active
             _hotkey.Enabled = false;
         }
+        private void CurHotkeyPreview_OnGotFocus(object sender, RoutedEventArgs e)
+        {
+            // Disable the current hotkey while the hotkey field is active
+            _hotkey.Enabled = false;
+        }
 
         private void HotkeyPreview_OnLostFocus(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                _hotkey.Enabled = true;
+            }
+            catch (HotkeyAlreadyInUseException)
+            {
+                // It is alright if the hotkey can't be reactivated
+            }
+        }
+        private void CurHotkeyPreview_OnLostFocus(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -242,6 +343,15 @@ namespace Switcheroo
         private void HotKeyCheckBox_OnUnchecked(object sender, RoutedEventArgs e)
         {
             HotkeyPreview.IsEnabled = false;
+        }
+        private void CurHotKeyCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            CurHotkeyPreview.IsEnabled = true;
+        }
+
+        private void CurHotKeyCheckBox_OnUnchecked(object sender, RoutedEventArgs e)
+        {
+            CurHotkeyPreview.IsEnabled = false;
         }
     }
 }
